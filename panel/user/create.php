@@ -25,7 +25,7 @@ if (
         $statement->execute([$email, $first_name, $last_name, $hashed_password]);
 
         // Redirect after successful insertion
-        // redirect('panel/user');
+        redirect('panel/user');
     } catch (PDOException $e) {
         // Handle PDO exceptions (e.g., database connection error, syntax error)
         echo "PDO Exception: " . $e->getMessage();
