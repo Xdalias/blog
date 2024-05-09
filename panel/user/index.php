@@ -27,8 +27,8 @@
             <section class="col-md-10 pt-3">
 
                 <section class="mb-2 d-flex justify-content-between align-items-center">
-                    <h2 class="h4">Articles</h2>
-                    <a href="<?= url('panel/post/create.php') ?>" class="btn btn-sm btn-success">Create</a>
+                    <h2 class="h4">Users</h2>
+                    <a href="<?= url('panel/user/create.php') ?>" class="btn btn-sm btn-success">Create</a>
                 </section>
 
                 <section class="table-responsive">
@@ -36,11 +36,10 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>image</th>
-                            <th>title</th>
-                            <th>category</th>
-                            <th>body</th>
-                            <th>status</th>
+                            <th>Email</th>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th>Created at</th>
                             <th>setting</th>
                         </tr>
                         </thead>
@@ -59,32 +58,28 @@
                         //  $statement->execute();
                         //  $posts = $statement->fetchAll();
 
-                        $query = "SELECT posts.*, categories.name AS category_name 
-                        FROM posts 
-                        LEFT JOIN categories ON posts.cat_id = categories.id
-                        WHERE posts.user_id = :user_id"; // Filter by user_id
+                        $query = "SELECT * from users";
                         $statement = $pdo->prepare($query);
-                        $statement->execute(['user_id' => $user->id]); // Pass user_id as parameter
-                        $posts = $statement->fetchAll();
+                        $statement->execute(); // Pass user_id as parameter
+                        $users = $statement->fetchAll();
               
-                         foreach ($posts as $key => $post) { ?>
+                         foreach ($users as $key => $user) { ?>
                             <tr>
                                 <td><?= $key += 1 ?></td>
-                                <td><img style="width: 90px;" src="<?= asset( $post->image) ?>"></td>
-                                <td><?= $post->title ?></td>
-                                <td><?= $post->category_name ?></td>
-                                <td><?= substr($post->body, 0, 30)  ?></td>
+                                <td><?= $user->email ?></td>
+                                <td><?= $user->first_name ?></td>
+                                <td><?= $user->last_name ?></td>
+                                <td><?= $user->created_at ?></td>
                                 <td>
-                                     <?php if($post->status == 10) { ?>
-                                     <span class="text-success">enable</span>
-                                     <?php } else { ?>
-                                      <span class="text-danger">disable</span>
-                                      <?php } ?>
-                                   </td>
-                                <td>
-                                    <a href="<?= url('panel/post/change-status.php?post_id=' . $post->id) ?>" class="btn btn-block btn-warning btn-sm">Change status</a>
-                                    <a href="<?= url('panel/post/edit.php?post_id=' . $post->id) ?>" class="btn btn-block btn-info btn-sm">Edit</a>
-                                    <a href="<?= url('panel/post/delete.php?post_id=' . $post->id) ?>" class="btn btn-block btn-danger btn-sm">Delete</a>
+                                    <?php
+                                    // Check if the user's ID is not 1
+                                    if ($user->id !== 1) {
+                                        ?>
+                                        <a href="<?= url('panel/user/edit.php?user_id=' . $user->id) ?>" class="btn btn-block btn-info btn-sm">Edit</a>
+                                        <a href="<?= url('panel/user/delete.php?user_id=' . $user->id) ?>" class="btn btn-block btn-danger btn-sm">Delete</a>
+                                        <?php
+                                    }
+                                    ?>
                                 </td>
                             </tr>
                             <?php } ?>

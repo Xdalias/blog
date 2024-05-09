@@ -5,24 +5,9 @@
 
 
 
-     if(isset($_POST['title']) && $_POST['title'] !== '' && isset($_POST['cat_id']) && $_POST['cat_id'] !== '' && isset($_POST['body']) && $_POST['body'] !== '' && isset($_FILES['image']) && $_FILES['image']['name'] !== '') 
+     if(isset($_POST['email']) && $_POST['email'] !== '' && isset($_POST['first_name']) && $_POST['first_name'] !== '' && isset($_POST['last_name']) && $_POST['last_name'] !== '' && isset($_POST['password']) && $_POST['password'] !== '') 
      {    
         
-          $query = "SELECT * FROM categories WHERE id = ?;";
-          $statement = $pdo->prepare($query);
-          $statement->execute([$_POST['cat_id']]);
-          $category = $statement->fetch();
-
-          $allowedMimes = ['png', 'jpg', 'gif', 'jpeg'];
-          $imageMime = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-          if(!in_array($imageMime, $allowedMimes))
-          {
-               redirect('panel/post');
-          }
-
-          $basePath = dirname(dirname(__DIR__));
-          $image = '/assets/images/posts/' . date('Y_m_d_H_i_s') . '.' . $imageMime;
-          $image_upload = move_uploaded_file($_FILES['image']['tmp_name'], $basePath . $image);
           if($category !== false && $image_upload !== false)
           {
             try {
@@ -54,7 +39,7 @@
                 echo "PDO Exception: " . $e->getMessage();
             }
           }
-          redirect('panel/post');
+          redirect('panel/user');
      }
 
 
@@ -82,31 +67,25 @@
 
                 <form action="<?= url('panel/post/create.php') ?>" method="post" enctype="multipart/form-data">
                     <section class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" class="form-control" name="title" id="title" placeholder="title ...">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" name="email" id="email" placeholder="email ...">
                     </section>
                     <section class="form-group">
-                        <label for="image">Image</label>
-                        <input type="file" class="form-control" name="image" id="image">
+                        <label for="first_name">First name</label>
+                        <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name ...">
                     </section>
                     <section class="form-group">
-                        <label for="cat_id">Category</label>
-                        <select class="form-control" name="cat_id" id="cat_id">
-                              <?php
-
-                         $query = "SELECT * FROM categories;";
-                         $statement = $pdo->prepare($query);
-                         $statement->execute();
-                         $categories = $statement->fetchAll();
-
-                         foreach ($categories as $category) { ?>
-                             <option value="<?= $category->id ?>"><?= $category->name ?></option>
-                             <?php } ?>
-                        </select>
+                        <label for="last_name">Last name</label>
+                        <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name ...">
                     </section>
                     <section class="form-group">
-                        <label for="body">Body</label>
-                        <textarea class="form-control" name="body" id="body" rows="5" placeholder="body ..."></textarea>
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password ...">
+                    </section>
+                    <section class="form-group">
+                        <label for="confirm_password">Confirm password</label>
+                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm password ...">
+                        <small id="passwordMatchError" class="text-danger" style="display: none;">Passwords do not match</small>
                     </section>
                     <section class="form-group">
                         <button type="submit" class="btn btn-primary">Create</button>
@@ -119,6 +98,18 @@
 
 </section>
 
+
+<script>
+    document.getElementById("submitButton").addEventListener("click", function(event) {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirm_password").value;
+
+        if (password !== confirmPassword) {
+            event.preventDefault(); // Prevent form submission
+            document.getElementById("passwordMatchError").style.display = "block";
+        }
+    });
+</script>
 <script src="<?= asset('assets/js/jquery.min.js') ?>"></script>
 <script src="<?= asset('assets/js/bootstrap.min.js') ?>"></script>
 

@@ -62,7 +62,7 @@ List the ready features here:
 
 10. after importing successfully.
 
-11. open any browser and type http://localhost/BitBlog/
+11. open any browser and type http://localhost/blog/
 
 12. first register and then login
 
