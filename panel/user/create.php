@@ -1,48 +1,39 @@
 <?php
-     require_once '../../functions/helpers.php';
-     require_once '../../functions/pdo_connection.php';
-     require_once '../../functions/auth.php';
+require_once '../../functions/helpers.php';
+require_once '../../functions/pdo_connection.php';
+require_once '../../functions/auth.php';
 
+if (
+    isset($_POST['email'], $_POST['first_name'], $_POST['last_name'], $_POST['password'])
+    && !empty($_POST['email']) && !empty($_POST['first_name']) && !empty($_POST['last_name']) && !empty($_POST['password'])
+) {
+    // Sanitize inputs
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $first_name = filter_var($_POST['first_name'], FILTER_SANITIZE_STRING);
+    $last_name = filter_var($_POST['last_name'], FILTER_SANITIZE_STRING);
+    $password = $_POST['password'];
 
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-     if(isset($_POST['email']) && $_POST['email'] !== '' && isset($_POST['first_name']) && $_POST['first_name'] !== '' && isset($_POST['last_name']) && $_POST['last_name'] !== '' && isset($_POST['password']) && $_POST['password'] !== '') 
-     {    
-        
-          if($category !== false && $image_upload !== false)
-          {
-            try {
-                // Check if email exists in session
-                if (isset($_SESSION['user'])) {
-                    $userEmail = $_SESSION['user'];
-                    
-                    // Prepare and execute the SQL query to retrieve user ID
-                    $queryGetUser = "SELECT id FROM users WHERE email = :email"; // Select only the id column
-                    $statementUser = $pdo->prepare($queryGetUser);
-                    $statementUser->execute(['email' => $userEmail]);
-                    $user = $statementUser->fetch(PDO::FETCH_OBJ);
-            
-                    if ($user) {
-                        $query = "INSERT INTO posts (title, cat_id, body, image, created_at, user_id) VALUES (?, ?, ?, ?, NOW(), ?)";
-                        $statement = $pdo->prepare($query);
-                        $statement->execute([$_POST['title'], $_POST['cat_id'], $_POST['body'], $image, $user->id]);
-                        // Check for success or handle any potential errors
-                    } else {
-                        // Handle case where user is not found
-                        echo "User not found";
-                    }
-                } else {
-                    // Handle case where email is not set in the session
-                    echo "Email not found in session";
-                }
-            } catch (PDOException $e) {
-                // Handle PDO exceptions (e.g., database connection error, syntax error)
-                echo "PDO Exception: " . $e->getMessage();
-            }
-          }
-          redirect('panel/user');
-     }
+    try {
+        // Prepare SQL statement
+        $query = "INSERT INTO users (email, first_name, last_name, password, created_at) VALUES (?, ?, ?, ?, NOW())";
+        $statement = $pdo->prepare($query);
 
+        // Execute the statement with sanitized inputs
+        $statement->execute([$email, $first_name, $last_name, $hashed_password]);
 
+        // Redirect after successful insertion
+        // redirect('panel/user');
+    } catch (PDOException $e) {
+        // Handle PDO exceptions (e.g., database connection error, syntax error)
+        echo "PDO Exception: " . $e->getMessage();
+    }
+} else {
+    // Handle case where required fields are missing
+    echo "All fields are required.";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,7 +56,7 @@
             </section>
             <section class="col-md-10 pt-3">
 
-                <form action="<?= url('panel/post/create.php') ?>" method="post" enctype="multipart/form-data">
+                <form action="<?= url('panel/user/create.php') ?>" method="post" enctype="multipart/form-data">
                     <section class="form-group">
                         <label for="email">Email</label>
                         <input type="text" class="form-control" name="email" id="email" placeholder="email ...">
