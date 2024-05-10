@@ -13,6 +13,12 @@ if (
     $last_name = filter_var($_POST['last_name'], FILTER_SANITIZE_STRING);
     $password = $_POST['password'];
 
+    if (strlen($password) < 8 || !preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
+        echo "Password must be at least 8 characters long and contain both letters and numbers.";
+        exit; // Stop further execution
+    }
+
+
     // Hash the password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
@@ -32,7 +38,7 @@ if (
     }
 } else {
     // Handle case where required fields are missing
-    echo "All fields are required.";
+    // echo "All fields are required.";
 }
 ?>
 <!DOCTYPE html>
@@ -72,6 +78,7 @@ if (
                     <section class="form-group">
                         <label for="password">Password</label>
                         <input type="password" class="form-control" name="password" id="password" placeholder="Password ...">
+                        <small id="passwordError" class="text-danger" style="display: none;">Password must be at least 8 characters long and contain both letters and numbers.</small>
                     </section>
                     <section class="form-group">
                         <label for="confirm_password">Confirm password</label>
@@ -79,7 +86,7 @@ if (
                         <small id="passwordMatchError" class="text-danger" style="display: none;">Passwords do not match</small>
                     </section>
                     <section class="form-group">
-                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="submit" class="btn btn-primary" id="submitButton">Create</button>
                     </section>
                 </form>
 
@@ -88,6 +95,29 @@ if (
     </section>
 
 </section>
+
+<script>
+document.getElementById("submitButton").addEventListener("click", function(event) {
+    var password = document.getElementById("password").value;
+    var confirmPassword = document.getElementById("confirm_password").value;
+
+    // Password validation
+    if (password.length < 8 || !/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+        document.getElementById("passwordError").style.display = "block";
+        event.preventDefault(); // Prevent form submission
+    } else {
+        document.getElementById("passwordError").style.display = "none";
+    }
+
+    // Confirm password validation
+    if (password !== confirmPassword) {
+        document.getElementById("passwordMatchError").style.display = "block";
+        event.preventDefault(); // Prevent form submission
+    } else {
+        document.getElementById("passwordMatchError").style.display = "none";
+    }
+});
+</script>
 
 
 <script>
